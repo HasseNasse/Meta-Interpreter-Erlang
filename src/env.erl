@@ -1,16 +1,16 @@
 %% @author HassanNazar
-%% @doc @todo Add description to meta.
+%% @doc @todo Add description to env.
 
 
--module(meta).
+-module(env).
 
 %% ====================================================================
 %% API functions
 %% ====================================================================
 -compile(export_all).
 
-sample()-> text().
-text() -> "TJAMAN".
+sample()-> "Test".
+
 
 %% ====================================================================
 %% Internal functions
