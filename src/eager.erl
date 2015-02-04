@@ -5,7 +5,7 @@
 -module(eager).
 
 %% ====================================================================
-%% API functions
+%% Functions
 %% ====================================================================
 -compile(export_all).
 	
@@ -19,12 +19,12 @@ eval_expr({var, Id}, Env) ->
 			{ok, Val}
 	end;
 
-eval_expr({cons, {var, x}, {atm, b}}, Env) ->
-	case eval_expr({var, x}, Env) of
+eval_expr({cons, {var, X}, {atm, B}}, Env) ->
+	case eval_expr({var, X}, Env) of
 		error ->
 			error;
 		{ok, A} ->
-			case eval_expr({atm, b}, Env) of
+			case eval_expr({atm, B}, Env) of
 				error ->
 					error;
 				{ok, B} ->
@@ -32,8 +32,31 @@ eval_expr({cons, {var, x}, {atm, b}}, Env) ->
 			end
 	end.
 
-%% ====================================================================
-%% Internal functions
-%% ====================================================================
+eval_match(ignore, _, []) ->
+	{ok, []};
+eval_match({atm, Id}, ignore, Env) ->
+	{ok, env:lookup(Id, Env)};
+eval_match({var, Id}, Str, Env) ->
+	case env:lookup(Id, Env) of
+		false ->
+			{ok, env:add(Id, Str, Env)};
+		{Id, Str} ->
+			{ok, [env:lookup(Id, Env)]};
+		{Id, _} ->
+			fail
+	end.
+
+%eval_match({cons, {var,X}, {atm,Y}}, ..., Env) ->
+%	case eval_match(..., ..., ...) of
+%		fail ->
+%			fail;
+%		{ok, ...} ->
+%			eval_match(..., ..., ...)
+%		end;
+%eval_match(_, _, _) ->
+%	fail.
+
+
+
 
 
