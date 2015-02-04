@@ -32,8 +32,8 @@ eval_expr({cons, {var, X}, {atm, B}}, Env) ->
 			end
 	end.
 
-eval_match(ignore, _, []) ->
-	{ok, []};
+eval_match(ignore, _, Env) ->
+	{ok, Env};
 eval_match({atm, Id}, ignore, Env) ->
 	{ok, env:lookup(Id, Env)};
 eval_match({var, Id}, Str, Env) ->
@@ -44,17 +44,17 @@ eval_match({var, Id}, Str, Env) ->
 			{ok, [env:lookup(Id, Env)]};
 		{Id, _} ->
 			fail
-	end.
+	end;
 
-%eval_match({cons, {var,X}, {atm,Y}}, ..., Env) ->
-%	case eval_match(..., ..., ...) of
-%		fail ->
-%			fail;
-%		{ok, ...} ->
-%			eval_match(..., ..., ...)
-%		end;
-%eval_match(_, _, _) ->
-%	fail.
+eval_match({cons, Head, Tail}, Str, Env) ->
+case eval_match(Head , Str, Env) of
+		fail ->
+			fail;
+		{ok, Success} ->
+			eval_match(Tail, Str, Env)
+		end;
+eval_match(_, _, _) ->
+	fail.
 
 
 
