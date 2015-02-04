@@ -41,8 +41,9 @@ eval_expr({cons, {var, X}, {atm, B}}, Env) ->
 
 eval_match(ignore, _, Env) ->
 	{ok, Env};
-eval_match({atm, Id}, ignore, Env) ->
+eval_match({atm, Id}, _, Env) ->
 	{ok, env:lookup(Id, Env)};
+
 eval_match({var, Id}, Str, Env) ->
 	case env:lookup(Id, Env) of
 		false ->
@@ -57,8 +58,8 @@ eval_match({cons, Head, Tail}, Str, Env) ->
 case eval_match(Head , Str, Env) of
 		fail ->
 			fail;
-		{ok, Success} ->
-			eval_match(Tail, Str, Success)
+		{ok, NewEnv} ->
+			eval_match(Tail, Str, NewEnv)
 		end;
 eval_match(_, _, _) ->
 	fail.
