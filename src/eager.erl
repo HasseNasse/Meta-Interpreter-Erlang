@@ -5,10 +5,13 @@
 -module(eager).
 
 %% ====================================================================
-%% Functions
+%%  Functions
 %% ====================================================================
 -compile(export_all).
 	
+%% ====================================================================
+%%  Expressions 2.3
+%% ====================================================================
 eval_expr({atm, Id}, _) ->
 	{ok, Id};
 eval_expr({var, Id}, Env) ->
@@ -32,6 +35,10 @@ eval_expr({cons, {var, X}, {atm, B}}, Env) ->
 			end
 	end.
 
+%% ====================================================================
+%%  Pattern Matching 2.4
+%% ====================================================================
+
 eval_match(ignore, _, Env) ->
 	{ok, Env};
 eval_match({atm, Id}, ignore, Env) ->
@@ -51,10 +58,50 @@ case eval_match(Head , Str, Env) of
 		fail ->
 			fail;
 		{ok, Success} ->
-			eval_match(Tail, Str, Env)
+			eval_match(Tail, Str, Success)
 		end;
 eval_match(_, _, _) ->
 	fail.
+
+%% ====================================================================
+%%  sequences 2.5
+%% ====================================================================
+eval(Seq) ->
+	eval_seq(Seq, []).
+
+eval_seq([Exp], Env) ->
+	eval_expr(Exp, Env);
+eval_seq([{match, Ptr, Exp}|Seq], Env) ->
+	case eval_expr(Exp, Env) of
+		error ->
+			error;
+		{ok, Str} ->
+			case eval_match(Ptr, Str, Env) of
+				fail ->
+					error;
+				{ok, NewEnv} ->
+					eval_seq(Seq,NewEnv)
+			end
+	end.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
