@@ -9,8 +9,16 @@
 %% ====================================================================
 -compile(export_all).
 
-sample()-> "Test".
+new()-> 
+	[].
 
+add(Id,Str,Env) -> 
+	A = [{Id,Str}],
+	lists:append(Env, A).
+	
+
+lookup(Id,Env) -> 
+	lists:keyfind(Id, 1, Env).
 
 %% ====================================================================
 %% Internal functions
