@@ -14,10 +14,11 @@
 %% ====================================================================
 eval_expr({atm, Id}, _) ->
 	{ok, Id};
+
 eval_expr({var, Id}, Env) ->
 	case env:lookup(Id, Env) of
 		false -> 
-			error;
+			error1;
 		{Id, Val} ->
 			{ok, Val}
 	end;
@@ -25,15 +26,33 @@ eval_expr({var, Id}, Env) ->
 eval_expr({cons, {var, X}, {atm, B}}, Env) ->
 	case eval_expr({var, X}, Env) of
 		error ->
-			error;
+			error5;
 		{ok, A} ->
 			case eval_expr({atm, B}, Env) of
 				error ->
-					error;
+					error2;
 				{ok, B} ->
 					{ok, {A,B}}
 			end
-	end.
+	end;
+
+%% ====================================================================
+%%  Case Handeler 3.0
+%% ====================================================================
+eval_expr({switch, Exp, [{clause, Ptr, Seq}|Rest]}, Env)->
+	case eval_expr(Exp,Env) of
+		error ->
+			error3;
+		{ok, _} ->
+			case eval_match(Exp, Ptr, Env) of
+				fail-> 
+					eval_expr({switch, Exp, Rest}, Env);
+				{ok, [{_,_}]} -> 
+					eval_seq(Seq, Env)
+			end
+	end;
+eval_expr({switch, _, []}, _)->
+	error.
 
 %% ====================================================================
 %%  Pattern Matching 2.4
@@ -70,16 +89,22 @@ eval_match(_, _, _) ->
 eval(Seq) ->
 	eval_seq(Seq, []).
 
-eval_seq([Exp], Env) ->
-	eval_expr(Exp, Env);
+%%%%% HANTERAR FLERA EXPRESSIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+eval_seq([Exp|[]], Env) ->
+    eval_expr(Exp, Env);
+eval_seq([{var,Id}|Seq], Env) ->
+    eval_expr({var,Id}, Env),
+    eval_seq(Seq, Env);
+
+%%%%% HANTERAR FLERA MATCHES%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 eval_seq([{match, Ptr, Exp}|Seq], Env) ->
 	case eval_expr(Exp, Env) of
 		error ->
-			error;
+			error4;
 		{ok, Str} ->
 			case eval_match(Ptr, Str, Env) of
 				fail ->
-					error;
+					error8;
 				{ok, NewEnv} ->
 					eval_seq(Seq,NewEnv)
 			end
@@ -90,7 +115,7 @@ eval_seq([{match, Ptr, Exp}|Seq], Env) ->
 
 
 
-
+% Expr 
 
 
 
