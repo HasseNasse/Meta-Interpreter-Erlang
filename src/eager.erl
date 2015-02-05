@@ -18,7 +18,7 @@ eval_expr({atm, Id}, _) ->
 eval_expr({var, Id}, Env) ->
 	case env:lookup(Id, Env) of
 		false -> 
-			error1;
+			error;
 		{Id, Val} ->
 			{ok, Val}
 	end;
@@ -30,7 +30,7 @@ eval_expr({cons, {var, X}, {atm, B}}, Env) ->
 		{ok, A} ->
 			case eval_expr({atm, B}, Env) of
 				error ->
-					error2;
+					error;
 				{ok, B} ->
 					{ok, {A,B}}
 			end
@@ -42,7 +42,7 @@ eval_expr({cons, {var, X}, {atm, B}}, Env) ->
 eval_expr({switch, Exp, [{clause, Ptr, Seq}|Rest]}, Env)->
 	case eval_expr(Exp,Env) of
 		error ->
-			error3;
+			error;
 		{ok, _} ->
 			case eval_match(Exp, Ptr, Env) of
 				fail-> 
@@ -60,9 +60,8 @@ eval_expr({switch, _, []}, _)->
 
 eval_match(ignore, _, Env) ->
 	{ok, Env};
-eval_match({atm, Id}, _, Env) ->
-	{ok, env:lookup(Id, Env)};
-
+eval_match({atm, _}, _, Env) ->
+	{ok, Env};
 eval_match({var, Id}, Str, Env) ->
 	case env:lookup(Id, Env) of
 		false ->
@@ -100,23 +99,16 @@ eval_seq([{var,Id}|Seq], Env) ->
 eval_seq([{match, Ptr, Exp}|Seq], Env) ->
 	case eval_expr(Exp, Env) of
 		error ->
-			error4;
+			error;
 		{ok, Str} ->
 			case eval_match(Ptr, Str, Env) of
 				fail ->
-					error8;
+					error;
 				{ok, NewEnv} ->
 					eval_seq(Seq,NewEnv)
 			end
 	end.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-% Expr 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
