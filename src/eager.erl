@@ -54,12 +54,12 @@ eval_match({var, Id}, Str, Env) ->
 			fail
 	end;
 
-eval_match({cons, Head, Tail}, Str, Env) ->
-case eval_match(Head , Str, Env) of
+eval_match({cons, Head, Tail}, {A,B}, Env) ->
+case eval_match(Head , {A}, Env) of
 		fail ->
 			fail;
 		{ok, NewEnv} ->
-			eval_match(Tail, Str, NewEnv)
+			eval_match(Tail, {B}, NewEnv)
 		end;
 eval_match(_, _, _) ->
 	fail.
@@ -85,6 +85,7 @@ eval_seq([{match, Ptr, Exp}|Seq], Env) ->
 			end
 	end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 
